@@ -1,6 +1,8 @@
 // Motor do leitor interativo - usado por todos os textos do site
 // Cada página de texto define DICTIONARY e PARAGRAPHS, depois chama renderReader()
 
+const FLASHCARDS_KEY = 'flashcards-data';
+
 function tokenize(text) {
   return text.match(/[a-zA-Z''-]+(?:-[a-zA-Z''-]+)*|[.,!?;:()"]|—|\s+/g) || [];
 }
@@ -22,6 +24,40 @@ function saveSeenData(storageKey, data) {
   try {
     localStorage.setItem(storageKey, JSON.stringify(data));
   } catch (e) {}
+}
+
+function getFlashcards() {
+  try {
+    const raw = localStorage.getItem(FLASHCARDS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveFlashcards(data) {
+  try {
+    localStorage.setItem(FLASHCARDS_KEY, JSON.stringify(data));
+  } catch (e) {}
+}
+
+function addFlashcard(key, translation, note, sourceText) {
+  const cards = getFlashcards();
+  if (cards[key]) return false; // já existe
+  cards[key] = {
+    word: key,
+    translation: translation,
+    note: note || '',
+    source: sourceText || '',
+    // Campos do algoritmo de repetição espaçada (SM-2 simplificado)
+    interval: 0,       // dias até a próxima revisão
+    repetitions: 0,    // quantas vezes acertou seguidas
+    easeFactor: 2.5,   // fator de facilidade
+    nextReview: Date.now(), // timestamp da próxima revisão (já disponível agora)
+    createdAt: Date.now()
+  };
+  saveFlashcards(cards);
+  return true;
 }
 
 function opacityFor(count) {
@@ -79,6 +115,7 @@ function renderReader(config) {
 
     function renderTooltipContent() {
       tooltip.innerHTML = '';
+
       const main = document.createElement('div');
       main.className = 'tooltip-main';
       main.textContent = entry ? entry.t : 'tradução não cadastrada';
@@ -97,6 +134,31 @@ function renderReader(config) {
         countEl.className = 'tooltip-count';
         countEl.textContent = `vista ${cnt}× antes`;
         tooltip.appendChild(countEl);
+      }
+
+      if (entry) {
+        const cards = getFlashcards();
+        const alreadyAdded = !!cards[key];
+
+        const btn = document.createElement('button');
+        btn.className = 'flashcard-btn';
+        btn.textContent = alreadyAdded ? '★ já está nos flashcards' : '☆ adicionar ao flashcard';
+        btn.disabled = alreadyAdded;
+        btn.style.pointerEvents = 'auto';
+
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const added = addFlashcard(key, entry.t, entry.n, token);
+          if (added) {
+            btn.textContent = '★ adicionado!';
+            btn.disabled = true;
+            setTimeout(() => {
+              btn.textContent = '★ já está nos flashcards';
+            }, 1200);
+          }
+        });
+
+        tooltip.appendChild(btn);
       }
 
       const arrow = document.createElement('span');
@@ -121,6 +183,7 @@ function renderReader(config) {
 
       renderTooltipContent();
       tooltip.classList.add('show');
+      tooltip.style.pointerEvents = 'auto';
     });
 
     wrapper.appendChild(wordSpan);
