@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcards — Meu Inglês</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #faf6ed;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2b2620;
+  }
+  .header {
+    position: sticky; top: 0; background: #faf6ed;
+    border-bottom: 1px solid #e3dac8; padding: 16px 20px; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  .home-link { font-size: 13px; color: #1d3a5f; text-decoration: none; }
+  .header-stats { font-size: 12px; color: #8a7d63; }
+  .container { max-width: 560px; margin: 0 auto; padding: 30px 20px 80px; }
+  h1.title { font-size: 32px; font-weight: 400; color: #1d3a5f; margin-bottom: 8px; }
+  .subtitle { font-size: 15px; color: #8a7d63; font-family: Arial, sans-serif; margin-bottom: 28px; }
+
+  .summary-row { display: flex; gap: 12px; margin-bottom: 28px; }
+  .summary-box {
+    flex: 1; background: #fff; border: 1px solid #e3dac8; border-radius: 10px;
+    padding: 16px; text-align: center; font-family: Arial, sans-serif;
+  }
+  .summary-num { font-size: 26px; font-weight: 700; color: #1d3a5f; }
+  .summary-label { font-size: 12px; color: #8a7d63; margin-top: 4px; }
+
+  .start-btn {
+    display: block; width: 100%; background: #1d3a5f; color: #faf6ed;
+    border: none; border-radius: 10px; padding: 16px; font-size: 17px;
+    font-family: Arial, sans-serif; font-weight: 700; cursor: pointer;
+    margin-bottom: 36px;
+  }
+  .start-btn:disabled { background: #c9bfa8; cursor: not-allowed; }
+
+  .card-area { display: none; }
+  .card-area.active { display: block; }
+
+  .flashcard {
+    background: #fff; border: 1px solid #e3dac8; border-radius: 16px;
+    padding: 48px 28px; text-align: center; min-height: 220px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+  .flashcard-word { font-size: 30px; color: #1d3a5f; font-weight: 400; }
+  .flashcard-hint { font-size: 13px; color: #a0927a; margin-top: 16px; font-family: Arial, sans-serif; }
+  .flashcard-answer { display: none; margin-top: 20px; }
+  .flashcard-answer.show { display: block; }
+  .flashcard-translation { font-size: 22px; color: #e8a23a; font-weight: 700; }
+  .flashcard-note { font-size: 14px; color: #6b6052; margin-top: 8px; font-family: Arial, sans-serif; }
+
+  .quality-buttons { display: none; gap: 10px; }
+  .quality-buttons.show { display: flex; }
+  .qbtn {
+    flex: 1; padding: 14px 8px; border-radius: 10px; border: none;
+    font-family: Arial, sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+    color: #fff;
+  }
+  .qbtn.wrong { background: #c0533f; }
+  .qbtn.hard { background: #c98a2e; }
+  .qbtn.easy { background: #3f8a5f; }
+
+  .progress-text { text-align: center; font-size: 13px; color: #a0927a; font-family: Arial, sans-serif; margin-bottom: 16px; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: #8a7d63; font-family: Arial, sans-serif; }
+
+  .list-section { margin-top: 16px; }
+  .list-title { font-size: 16px; font-weight: 700; color: #1d3a5f; margin-bottom: 12px; font-family: Arial, sans-serif; }
+  .card-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; background: #fff; border: 1px solid #e3dac8;
+    border-radius: 8px; margin-bottom: 8px; font-family: Arial, sans-serif; font-size: 14px;
+  }
+  .card-row-word { font-weight: 700; color: #1d3a5f; }
+  .card-row-when { font-size: 12px; color: #a0927a; }
+
+  .done-message { text-align: center; padding: 40px 20px; }
+  .done-message .big { font-size: 22px; color: #1d3a5f; margin-bottom: 8px; }
+  .done-message .small { font-size: 14px; color: #8a7d63; font-family: Arial, sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="home-link">← Todos os textos</a>
+  <span class="header-stats" id="header-stats"></span>
+</div>
+
+<div class="container">
+  <h1 class="title">Flashcards</h1>
+  <div class="subtitle">Revisão com repetição espaçada — as palavras voltam no momento certo para fixar de verdade.</div>
+
+  <div class="summary-row">
+    <div class="summary-box">
+      <div class="summary-num" id="due-count">0</div>
+      <div class="summary-label">para revisar hoje</div>
+    </div>
+    <div class="summary-box">
+      <div class="summary-num" id="total-count">0</div>
+      <div class="summary-label">total de cards</div>
+    </div>
+  </div>
+
+  <button class="start-btn" id="start-btn">Começar revisão</button>
+
+  <div class="card-area" id="card-area">
+    <div class="progress-text" id="progress-text"></div>
+    <div class="flashcard" id="flashcard">
+      <div class="flashcard-word" id="flashcard-word"></div>
+      <div class="flashcard-hint" id="flashcard-hint">toque para ver a tradução</div>
+      <div class="flashcard-answer" id="flashcard-answer">
+        <div class="flashcard-translation" id="flashcard-translation"></div>
+        <div class="flashcard-note" id="flashcard-note"></div>
+      </div>
+    </div>
+    <div class="quality-buttons" id="quality-buttons">
+      <button class="qbtn wrong" data-q="0">Errei</button>
+      <button class="qbtn hard" data-q="1">Difícil</button>
+      <button class="qbtn easy" data-q="2">Fácil</button>
+    </div>
+  </div>
+
+  <div class="list-section" id="list-section">
+    <div class="list-title">Todos os flashcards</div>
+    <div id="card-list"></div>
+  </div>
+</div>
+
+<script src="srs.js"></script>
+<script>
+const FLASHCARDS_KEY = 'flashcards-data';
+
+function getFlashcards() {
+  try {
+    const raw = localStorage.getItem(FLASHCARDS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+
+function saveFlashcards(data) {
+  try { localStorage.setItem(FLASHCARDS_KEY, JSON.stringify(data)); } catch (e) {}
+}
+
+let cards = getFlashcards();
+let queue = [];
+let currentIndex = 0;
+let revealed = false;
+
+function renderSummary() {
+  const due = getDueCards(cards);
+  const total = Object.keys(cards).length;
+  document.getElementById('due-count').textContent = due.length;
+  document.getElementById('total-count').textContent = total;
+  document.getElementById('header-stats').textContent = `${total} flashcards salvos`;
+  document.getElementById('start-btn').disabled = due.length === 0;
+  document.getElementById('start-btn').textContent = due.length === 0
+    ? (total === 0 ? 'Nenhum flashcard ainda' : 'Tudo em dia — volte mais tarde')
+    : `Começar revisão (${due.length})`;
+}
+
+function renderList() {
+  const listEl = document.getElementById('card-list');
+  listEl.innerHTML = '';
+  const all = Object.values(cards).sort((a, b) => a.nextReview - b.nextReview);
+
+  if (all.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Você ainda não adicionou nenhum flashcard. Vá até um texto, clique numa palavra e toque em "adicionar ao flashcard".';
+    listEl.appendChild(empty);
+    return;
+  }
+
+  all.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'card-row';
+    const isDue = c.nextReview <= Date.now();
+    row.innerHTML = `
+      <span class="card-row-word">${c.word}</span>
+      <span class="card-row-when">${isDue ? 'pronto para revisar' : 'revisão ' + daysUntil(c.nextReview)}</span>
+    `;
+    listEl.appendChild(row);
+  });
+}
+
+function startReview() {
+  queue = getDueCards(cards);
+  currentIndex = 0;
+  if (queue.length === 0) return;
+  document.getElementById('card-area').classList.add('active');
+  document.getElementById('start-btn').style.display = 'none';
+  showCard();
+}
+
+function showCard() {
+  revealed = false;
+  const card = queue[currentIndex];
+  document.getElementById('flashcard-word').textContent = card.word;
+  document.getElementById('flashcard-translation').textContent = card.translation;
+  document.getElementById('flashcard-note').textContent = card.note || '';
+  document.getElementById('flashcard-answer').classList.remove('show');
+  document.getElementById('flashcard-hint').style.display = 'block';
+  document.getElementById('quality-buttons').classList.remove('show');
+  document.getElementById('progress-text').textContent = `${currentIndex + 1} de ${queue.length}`;
+}
+
+function revealAnswer() {
+  if (revealed) return;
+  revealed = true;
+  document.getElementById('flashcard-answer').classList.add('show');
+  document.getElementById('flashcard-hint').style.display = 'none';
+  document.getElementById('quality-buttons').classList.add('show');
+}
+
+function answerCard(quality) {
+  const card = queue[currentIndex];
+  cards[card.word] = scheduleCard(card, quality);
+  saveFlashcards(cards);
+
+  currentIndex++;
+  if (currentIndex >= queue.length) {
+    finishReview();
+  } else {
+    showCard();
+  }
+}
+
+function finishReview() {
+  const cardArea = document.getElementById('card-area');
+  cardArea.innerHTML = `
+    <div class="done-message">
+      <div class="big">✓ Revisão concluída!</div>
+      <div class="small">Volte mais tarde para a próxima rodada.</div>
+    </div>
+  `;
+  setTimeout(() => {
+    cards = getFlashcards();
+    renderSummary();
+    renderList();
+    document.getElementById('start-btn').style.display = 'block';
+    cardArea.classList.remove('active');
+  }, 1800);
+}
+
+document.getElementById('flashcard').addEventListener('click', revealAnswer);
+document.getElementById('start-btn').addEventListener('click', startReview);
+document.getElementById('quality-buttons').addEventListener('click', (e) => {
+  const btn = e.target.closest('.qbtn');
+  if (!btn) return;
+  answerCard(parseInt(btn.dataset.q, 10));
+});
+
+renderSummary();
+renderList();
+</script>
+
+</body>
+</html>

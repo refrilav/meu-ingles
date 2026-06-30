@@ -26,6 +26,13 @@
   .tooltip-note { font-size: 13px; opacity: 0.78; line-height: 1.4; margin-top: 4px; }
   .tooltip-count { font-size: 11px; opacity: 0.5; margin-top: 4px; }
   .tooltip-arrow { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 7px solid transparent; border-top-color: #1e1a15; width: 0; height: 0; }
+  .flashcard-btn {
+    display: block; margin-top: 8px; width: 100%;
+    background: #2f2a23; color: #e8c468; border: 1px solid #e8c468;
+    border-radius: 6px; padding: 6px 8px; font-size: 12px;
+    font-family: Arial, sans-serif; cursor: pointer;
+  }
+  .flashcard-btn:disabled { opacity: 0.6; cursor: default; border-color: #6b6052; color: #a89b7c; }
   .footer-note { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e3dac8; font-size: 13px; color: #a0927a; text-align: center; font-family: Arial, sans-serif; }
 </style>
 </head>
@@ -33,6 +40,7 @@
 
 <div class="header">
   <a href="index.html" class="home-link">← Todos os textos</a>
+  <a href="flashcards.html" class="home-link" style="margin-left:auto; margin-right:16px;">★ Flashcards</a>
   <span class="header-stats" id="stats">0 palavras · 0 cliques</span>
 </div>
 
