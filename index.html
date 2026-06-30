@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leitor de Inglês - Daniella</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #faf6ed;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2b2620;
+  }
+  .header {
+    position: sticky;
+    top: 0;
+    background: #faf6ed;
+    border-bottom: 1px solid #e3dac8;
+    padding: 16px 20px;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
+  .header-title {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8a7d63;
+  }
+  .header-stats {
+    font-size: 12px;
+    color: #8a7d63;
+  }
+  .home-link {
+    font-size: 13px;
+    color: #1d3a5f;
+    text-decoration: none;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+  }
+  h1.title {
+    font-size: 40px;
+    font-weight: 400;
+    color: #1d3a5f;
+    margin-bottom: 28px;
+  }
+  h2.subtitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1d3a5f;
+    margin: 32px 0 14px;
+  }
+  p.paragraph {
+    font-size: 18px;
+    line-height: 1.82;
+    margin-bottom: 20px;
+  }
+  .callout {
+    background: #eef0f5;
+    border-top: 6px solid #1d3a5f;
+    padding: 18px 22px;
+    margin: 24px 0;
+    border-radius: 2px;
+  }
+  .callout-title {
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #1d3a5f;
+    font-family: Arial, sans-serif;
+  }
+  .callout-text {
+    font-size: 17px;
+    line-height: 1.75;
+  }
+  .word {
+    cursor: pointer;
+    border-bottom: 1.5px dotted #b8a888;
+    border-radius: 3px;
+    padding: 0 1px;
+    position: relative;
+    display: inline-block;
+    transition: opacity 0.4s, background 0.2s;
+  }
+  .word.active {
+    background: #f4ecd8;
+  }
+  .tooltip {
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e1a15;
+    color: #f4ecd8;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    z-index: 999;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    min-width: 180px;
+    max-width: 260px;
+    white-space: normal;
+    pointer-events: none;
+    display: none;
+  }
+  .tooltip.show { display: block; }
+  .tooltip-main {
+    color: #e8c468;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .tooltip-note {
+    font-size: 13px;
+    opacity: 0.78;
+    line-height: 1.4;
+    margin-top: 4px;
+  }
+  .tooltip-count {
+    font-size: 11px;
+    opacity: 0.5;
+    margin-top: 4px;
+  }
+  .tooltip-arrow {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top-color: #1e1a15;
+    width: 0;
+    height: 0;
+  }
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e3dac8;
+    font-size: 13px;
+    color: #a0927a;
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="index.html" class="home-link">← Todos os textos</a>
+  <span class="header-stats" id="stats">0 palavras · 0 cliques</span>
+</div>
+
+<div class="container">
+  <h1 class="title">Meus textos de inglês</h1>
+  <p class="paragraph">Escolha um texto para começar a ler. Toque em qualquer palavra para ver a tradução com contexto.</p>
+  <ul id="text-list" style="font-size:18px; line-height:2;"></ul>
+</div>
+
+<script>
+  // Lista de textos disponíveis - vai crescendo conforme novos arquivos forem adicionados
+  const textos = [
+    { titulo: "Storytelling with Data — Introdução", arquivo: "storytelling-with-data-intro.html" }
+  ];
+  const list = document.getElementById('text-list');
+  textos.forEach(t => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = t.arquivo;
+    a.textContent = t.titulo;
+    a.style.color = '#1d3a5f';
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+</script>
+
+</body>
+</html>
